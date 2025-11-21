@@ -1,37 +1,30 @@
-pipeline {
+pipeline{
     agent any
-    tools {
+
+    tools{
         maven 'maven'
     }
-    stages {
-        stage('Build') {
-            steps {
+    stages{
+        stage('Checkout'){
+            steps{
                 sh 'mvn clean package -DskipTests'
             }
         }
-        stage('Deploy') {
-            steps {
-                sh '''
-                    echo "Stopping existing Spring Boot application if running..."
-                    if pgrep -f devguru-0.0.1-SNAPSHOT.jar > /dev/null; then
-                        sudo pkill -f devguru-0.0.1-SNAPSHOT.jar
-                        echo "Application stopped."
-                    else
-                        echo "No existing application running."
-                    fi
-
-                    echo "Starting the Spring Boot application..."
-                    sudo java -jar target/devguru-0.0.1-SNAPSHOT.jar > /dev/null 2>&1 &
-                '''
+            
+        stage('Build'){
+            steps{
+                sh 'mvn clean package'
             }
         }
     }
-    post {
-        success {
-            echo "Deployed successfully"
+    post{
+        always{
+            echo 'This will always run'
         }
-        failure {
-            echo "Failed to Deploy"
+        success{
+            echo 'This will run only if successful'
         }
+        failure{
+            echo 'This will run only if failed'
     }
 }
